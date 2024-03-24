@@ -1,0 +1,66 @@
+<%@ page import="java.util.date.*,java.util.text.DateFormat.*,java.text.ParseException.*"%>
+<%@page import="com.oreilly.servlet.*,java.sql.*,java.lang.*,databaseconnection.*,java.text.SimpleDateFormat,java.util.*,java.io.*,javax.servlet.*, javax.servlet.http.*" %>
+<%@ page import = "java.util.Date,java.text.SimpleDateFormat,java.text.ParseException"%>	 
+
+<html>
+<head>
+<title>dpaas</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<%
+java.util.Date now = new java.util.Date();
+	 String DATE_FORMAT1 = "yyyy-MM-dd";
+	 SimpleDateFormat sdf1 = new SimpleDateFormat(DATE_FORMAT1);
+     String str = sdf1.format(now);
+String s="UNCHANGED";
+String ffn=request.getParameter("fn");
+String ff=request.getParameter("file");
+String b=(String)session.getAttribute("a");
+
+//ServletContext context=getServletContext();
+//String a=context.getRealPath("\\Files");
+String a="C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0\\webapps\\cloud_data_protection\\file\\";
+String fname=a+ff;
+FileInputStream fis = null;
+File image=new File(fname);
+System.out.println(fname);
+
+
+try
+{
+Class.forName("com.mysql.jdbc.Driver");
+System.out.println("before connection");
+
+Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/service","root","root");
+
+System.out.println("after connection ");
+
+PreparedStatement ps=con.prepareStatement("insert into file1(file_name,data,userid,status,date1) values(?,AES_ENCRYPT(?,'key'),?,?,'"+str+"')");
+
+System.out.println("after ps");
+
+ps.setString(1,ffn);
+fis=new FileInputStream(image);
+ps.setBinaryStream(2, (InputStream)fis, (int)(image.length()));
+ps.setString(3,b);
+ps.setString(4,s);
+
+ps.executeUpdate();
+out.println("Successfully Registered");
+session.setAttribute("ffn",ffn);
+session.setAttribute("ff",ff);
+response.sendRedirect("file_upload2.jsp");
+
+
+}
+catch(Exception e1)
+{
+out.println(e1.getMessage());
+System.out.println(e1);
+}
+
+%>
+</body>
+</html>
